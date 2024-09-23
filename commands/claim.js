@@ -1,3 +1,10 @@
+/**
+ * Command handler for the /claim command.
+ * This command allows users to claim their salary after they have gone to work, provided 8 hours have passed since their last work session.
+ *
+ * @module commands/claim
+ */
+
 const { SlashCommandBuilder } = require("discord.js");
 const profileModel = require("../models/profileSchema");
 const { workMin, workMax } = require("../globalValues.json");
@@ -6,6 +13,18 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("claim")
         .setDescription("Hole dein Gehalt nach der Arbeit ab"),
+
+    /**
+    * Executes the /claim command.
+    *
+    * @async
+    * @param {CommandInteraction} interaction - The interaction object representing the command execution.
+    * @param {Object} profileData - The user's profile data from the database.
+    * @param {string} profileData.id - The user ID.
+    * @param {number} profileData.workLastUsed - The timestamp of the last time the user went to work.
+    * @param {boolean} profileData.claimed - Indicates whether the user has already claimed their salary.
+    * @returns {Promise<void>}
+    */
     async execute(interaction, profileData) {
         const { id } = interaction.user;
         const { workLastUsed, claimed } = profileData;
@@ -19,12 +38,12 @@ module.exports = {
         }
 
         // Berechne die Differenz seit der letzten Arbeit
-        // Überprüfe, ob 8 Stunden seit dem letzten Arbeiten vergangen sind
         const workLastUsedDate = new Date(workLastUsed);
         const currentDate = new Date();
         const timeDifference = currentDate - workLastUsedDate;
         const hoursSinceWork = timeDifference / (1000 * 60 * 60);
 
+        // Überprüfe, ob 8 Stunden seit dem letzten Arbeiten vergangen sind
         if (hoursSinceWork < 8) {
             const remainingTime = 8 - hoursSinceWork;
             const remainingHours = Math.floor(remainingTime);
@@ -40,8 +59,8 @@ module.exports = {
             Math.random() * (workMax - workMin) + workMin
         );
 
+        // Aktualisiere den Kontostand und setze claimed auf true, atWork auf false
         try {
-            // Aktualisiere den Kontostand und setze claimed auf true
             await profileModel.findOneAndUpdate(
                 { userId: id },
                 {
