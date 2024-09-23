@@ -6,7 +6,8 @@ module.exports = {
         .setDescription("Shows a user their balance"),
     async execute(interaction, profileData) {
         const { balance} = profileData;
-        const username = interaction.user.username;
-        await interaction.reply(`${username} has ${balance} coins`);
+        const userId = interaction.user.id;
+        console.log(interaction.user);
+        await interaction.reply(`<@${userId}>, du hast ${balance} coins`);
     },
 };
