@@ -54,10 +54,9 @@ module.exports = {
             });
         }
 
-        // Berechne den zufälligen Lohn
-        const randomAmt = Math.floor(
-            Math.random() * (workMax - workMin) + workMin
-        );
+        // Berechne den zufälligen Lohn mit zwei Dezimalstellen
+        let randomAmt = Math.random() * (workMax - workMin) + workMin;
+        randomAmt = Math.round(randomAmt * 100) / 100;
 
         // Aktualisiere den Kontostand und setze claimed auf true, atWork auf false
         try {
@@ -81,6 +80,10 @@ module.exports = {
             });
         }
 
-        await interaction.reply(`Du hast **${randomAmt} Coins** verdient. Die Coins wurden an deine Wallet überwiesen.`);
+        // Formatieren der Zahl mit Komma als Dezimaltrennzeichen
+        const formattedAmt = randomAmt.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        // Ausgabe der Nachricht
+        await interaction.reply(`Du hast **${formattedAmt} Coins** verdient. Die Coins wurden an deine Wallet überwiesen.`);
     },
 };

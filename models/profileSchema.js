@@ -8,6 +8,8 @@ const profileSchema = new mongoose.Schema({
     workLastUsed: { type: Number, default: 0 },
     claimed: { type: Boolean, default: false },
     atWork: { type: Boolean, default: false },
+    play3DoorsLastUsed: { type: Number, default: 0 },
+    playCount3Doors: { type: Number, default: 0 }
 });
 
 const model = mongoose.model("g4m3-economy", profileSchema);

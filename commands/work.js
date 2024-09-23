@@ -96,7 +96,7 @@ module.exports = {
         }
 
         // Berechne die Zeit 8 Stunden später
-        const claimTime = new Date(Date.now() + 1 * 60 * 60 * 1000); // 8 * 60 * 60 * 1000
+        const claimTime = new Date(Date.now() + 8 * 60 * 60 * 1000);
         const hours = claimTime.getHours().toString().padStart(2, "0");
         const minutes = claimTime.getMinutes().toString().padStart(2, "0");
 

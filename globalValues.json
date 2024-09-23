@@ -2,5 +2,6 @@
     "dailyMin": 80,
     "dailyMax": 120,
     "workMin": 80,
-    "workMax": 120
+    "workMax": 120,
+    "maxPlaysPerDay": 5
 }
