@@ -7,10 +7,14 @@ module.exports = {
         .setDescription("Gehe arbeiten, um Coins zu verdienen"),
     async execute(interaction, profileData) {
         const { id } = interaction.user;
-        const { workLastUsed } = profileData;
+        const { workLastUsed, atWork } = profileData;
 
         // Überprüfe den aktuellen Wochentag (0 = Sonntag, 6 = Samstag)
-        const today = new Date().getDay();
+        const weekDays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        /*const today = new Date().getDay();*/
+        const todayName = weekDays[today];
+        console.log("const today = " + today + " (" + todayName + ")");
+
         if (today === 0 || today === 6) {
             return await interaction.reply({
                 content: "Du kannst nur von Montag bis Freitag arbeiten.",
@@ -21,13 +25,16 @@ module.exports = {
         // Prüfen, ob der Befehl heute bereits benutzt wurde
         const lastUsedDate = new Date(workLastUsed);
         const todayDate = new Date();
-        const isSameDay = lastUsedDate.getUTCFullYear() === todayDate.getUTCFullYear() &&
-            lastUsedDate.getUTCMonth() === todayDate.getUTCMonth() &&
-            lastUsedDate.getUTCDate() === todayDate.getUTCDate();
+        /*console.log("const lastUsedDate = ", lastUsedDate.toLocaleDateString('de-DE'));*/
+        /*console.log("const todayDate = ", todayDate.toLocaleDateString('de-DE'));*/
+
+        const isSameDay = lastUsedDate.getFullYear() === todayDate.getFullYear() &&
+            lastUsedDate.getMonth() === todayDate.getMonth() &&
+            lastUsedDate.getDate() === todayDate.getDate();
 
         if (isSameDay) {
             return await interaction.reply({
-                content: "Du bist heute bereits zur Arbeit gegangen. Du kannst nur einmal am Tag arbeiten gehen.",
+                content: "Du warst heute schon arbeiten. Du kannst nur einmal am Tag arbeiten gehen.",
                 ephemeral: true,
             });
         }
@@ -40,6 +47,7 @@ module.exports = {
                     $set: {
                         workLastUsed: Date.now(),
                         claimed: false,
+                        atWork: true,
                     },
                 }
             );
@@ -50,14 +58,12 @@ module.exports = {
                 ephemeral: true,
             });
         }
-
-        console.log(workLastUsed);
-
+        
         // Berechne die Zeit 8 Stunden später
-        const claimTime = new Date(Date.now() + 8 * 60 * 60 * 1000);
+        const claimTime = new Date(Date.now() + 1 * 60 * 60 * 1000); // 8 * 60 * 60 * 1000
         const hours = claimTime.getHours().toString().padStart(2, "0");
         const minutes = claimTime.getMinutes().toString().padStart(2, "0");
 
-        await interaction.reply(`Du bist arbeiten gegangen. Mit </claim:0> kannst du deinen Lohn um ${hours}:${minutes} Uhr abholen.`);
+        await interaction.reply(`Du bist arbeiten gegangen. Mit </claim:1287671341469663314> kannst du deinen Lohn um **${hours}:${minutes} Uhr** abholen.`);
     },
 };

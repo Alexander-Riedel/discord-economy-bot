@@ -30,7 +30,7 @@ module.exports = {
             const remainingHours = Math.floor(remainingTime);
             const remainingMinutes = Math.floor((remainingTime - remainingHours) * 60);
             return await interaction.reply({
-                content: `Du kannst deinen Lohn erst in ${remainingHours} Std. ${remainingMinutes} Min. abholen.`,
+                content: `Du kannst deinen Lohn erst in **${remainingHours} Std. ${remainingMinutes} Min.** abholen.`,
                 ephemeral: true,
             });
         }
@@ -50,17 +50,18 @@ module.exports = {
                     },
                     $set: {
                         claimed: true,
+                        atWork: false,
                     },
                 }
             );
         } catch (err) {
             console.log(err);
             return await interaction.reply({
-                content: "Es gab ein Problem beim Abholen deines Gehalts. Bitte versuche es später erneut.",
+                content: "Es gab ein Problem. Bitte versuche es später erneut.",
                 ephemeral: true,
             });
         }
 
-        await interaction.reply(`Du hast ${randomAmt} Coins verdient!`);
+        await interaction.reply(`Du hast **${randomAmt} Coins** verdient. Die Coins wurden an deine Wallet überwiesen.`);
     },
 };
