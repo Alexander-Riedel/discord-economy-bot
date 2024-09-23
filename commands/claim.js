@@ -65,7 +65,7 @@ module.exports = {
                 { userId: id },
                 {
                     $inc: {
-                        balance: randomAmt,
+                        coins: randomAmt,
                     },
                     $set: {
                         claimed: true,

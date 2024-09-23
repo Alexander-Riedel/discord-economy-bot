@@ -4,17 +4,17 @@ const profileModel = require("../models/profileSchema");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("donate")
-        .setDescription("Donate your coins to another user")
+        .setDescription("Sende eine Anzahl an Coins an einen anderen Benutzer")
         .addUserOption((option) =>
             option
                 .setName("user")
-                .setDescription("The user you want to donate to")
+                .setDescription("Der Benutzer der die Coins erhalten soll")
                 .setRequired(true)
         )
         .addIntegerOption((option) =>
             option
                 .setName("amount")
-                .setDescription("The amount of coins you want to donate")
+                .setDescription("Die Anzahl der Coins, die versendet werden sollen")
                 .setRequired(true)
                 .setMinValue(1)
         ),
@@ -22,12 +22,12 @@ module.exports = {
         const receiveUser = interaction.options.getUser("user");
         const donateAmt = interaction.options.getInteger("amount");
 
-        const { balance } = profileData;
+        const { coins } = profileData;
 
-        if (balance < donateAmt) {
+        if (coins < donateAmt) {
             await interaction.deferReply({ ephemeral: true });
             return await interaction.editReply(
-                `You do not have ${donateAmt} coins in your balance`
+                `Du hast keine ${donateAmt} Coins in deiner Wallet.`
             );
         }
 
@@ -37,7 +37,7 @@ module.exports = {
             },
             {
                 $inc: {
-                    balance: donateAmt,
+                    coins: donateAmt,
                 },
             }
         );
@@ -45,7 +45,7 @@ module.exports = {
         if (!receiveUserData) {
             await interaction.deferReply({ ephemeral: true });
             return await interaction.editReply(
-                `${receiveUser.username} is not in the currency system`
+                `**${receiveUser.globalName}** hat noch keine Wallet. Du kannst die **${donateAmt} Coins** __nicht__ versenden.`
             );
         }
 
@@ -57,13 +57,13 @@ module.exports = {
             },
             {
                 $inc: {
-                    balance: -donateAmt,
+                    coins: -donateAmt,
                 },
             }
         );
 
         interaction.editReply(
-            `Du hast ${donateAmt} coins an ${receiveUser.username} gespendet.`
+            `Du hast **${receiveUser.globalName}** **${donateAmt} Coins** gesendet.`
         );
     },
 };
