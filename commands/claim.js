@@ -19,12 +19,12 @@ module.exports = {
         }
 
         // Berechne die Differenz seit der letzten Arbeit
+        // Überprüfe, ob 8 Stunden seit dem letzten Arbeiten vergangen sind
         const workLastUsedDate = new Date(workLastUsed);
         const currentDate = new Date();
         const timeDifference = currentDate - workLastUsedDate;
         const hoursSinceWork = timeDifference / (1000 * 60 * 60);
 
-        // Überprüfe, ob 8 Stunden seit dem letzten Arbeiten vergangen sind
         if (hoursSinceWork < 8) {
             const remainingTime = 8 - hoursSinceWork;
             const remainingHours = Math.floor(remainingTime);
