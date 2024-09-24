@@ -27,7 +27,7 @@ module.exports = {
     */
     async execute(interaction, profileData) {
         const { id } = interaction.user;
-        const { workLastUsed, claimed } = profileData;
+        const { workLastUsed, claimed, atWork } = profileData;
 
         // Prüfen, ob der Benutzer bereits sein Gehalt beansprucht hat
         if (claimed) {
@@ -54,9 +54,16 @@ module.exports = {
             });
         }
 
+        // Überprüfe, der Benutzer arbeiten gegangen ist
+        if (!atWork) {
+            return await interaction.reply({
+                content: `Du musst erst arbeiten gehen, bevor du deinen Lohn abholen kannst. Gehe mit </work:1287644006389383222> arbeiten.`,
+                ephemeral: true,
+            });
+        }
+
         // Berechne den zufälligen Lohn mit zwei Dezimalstellen
-        let randomAmt = Math.random() * (workMax - workMin) + workMin;
-        randomAmt = Math.round(randomAmt * 100) / 100;
+        let randomAmt = Math.floor(Math.random() * (workMax - workMin) + workMin);
 
         // Aktualisiere den Kontostand und setze claimed auf true, atWork auf false
         try {
@@ -80,10 +87,7 @@ module.exports = {
             });
         }
 
-        // Formatieren der Zahl mit Komma als Dezimaltrennzeichen
-        const formattedAmt = randomAmt.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
         // Ausgabe der Nachricht
-        await interaction.reply(`Du hast **${formattedAmt} Coins** verdient. Die Coins wurden an deine Wallet überwiesen.`);
+        await interaction.reply(`Du hast **${randomAmt} Coins** verdient. Die Coins wurden an deine Wallet überwiesen.`);
     },
 };
