@@ -9,7 +9,8 @@ const profileSchema = new mongoose.Schema({
     claimed: { type: Boolean, default: false },
     atWork: { type: Boolean, default: false },
     play3DoorsLastUsed: { type: Number, default: 0 },
-    playCount3Doors: { type: Number, default: 0 }
+    playCount3Doors: { type: Number, default: 0 },
+    lottoTickets: { type: [Number], default: [] },
 });
 
 const model = mongoose.model("g4m3-economy", profileSchema);

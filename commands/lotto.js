@@ -51,7 +51,7 @@ module.exports = {
 
         // Event-Handler, der auf Button-Interaktionen reagiert
         const filter = (i) => i.customId.startsWith('lotto_') && i.user.id === interaction.user.id;
-        const collector = interaction.channel.createMessageComponentCollector({ filter, max: 5, time: 60000 });
+        const collector = interaction.channel.createMessageComponentCollector({ filter, max: 5, time: 30000 });
 
         const selectedNumbers = [];
         collector.on('collect', async (i) => {
@@ -61,17 +61,21 @@ module.exports = {
                 selectedNumbers.push(num);
 
                 // Buttons aktualisieren: Deaktiviere den gewählten Button
-                i.message.components.forEach(actionRow => {
-                    actionRow.components.forEach(button => {
-                        if (button.customId === i.customId) {
-                            button.setDisabled(true).setStyle(ButtonStyle.Secondary);
-                        }
+                const updatedRows = i.message.components.map(actionRow => {
+                    return new ActionRowBuilder({
+                        components: actionRow.components.map(button => {
+                            const newButton = ButtonBuilder.from(button);
+                            if (newButton.customId === i.customId) {
+                                newButton.setDisabled(true).setStyle(ButtonStyle.Secondary); // Deaktiviere den Button
+                            }
+                            return newButton;
+                        })
                     });
                 });
 
                 await i.update({
                     content: `Ausgewählt: ${selectedNumbers.join(', ')}`,
-                    components: i.message.components,
+                    components: updatedRows,
                 });
             } else {
                 await i.reply({ content: `Du hast die Zahl ${num} bereits ausgewählt!`, ephemeral: true });
@@ -82,6 +86,12 @@ module.exports = {
             if (selectedNumbers.length < 5) {
                 await interaction.followUp({ content: 'Du hast nicht alle 5 Zahlen ausgewählt.', ephemeral: true });
             } else {
+                // Speichere die ausgewählten Lottozahlen in der Datenbank
+                await profileModel.findOneAndUpdate(
+                    { userId: id },
+                    { $push: { lottoTickets: selectedNumbers } } // Füge die Lottozahlen zum Array 'lottoTickets' hinzu
+                );
+
                 await interaction.followUp({ content: `Deine gewählten Lottozahlen sind: ${selectedNumbers.join(', ')}` });
             }
         });
