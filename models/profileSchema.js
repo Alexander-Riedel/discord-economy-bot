@@ -10,7 +10,7 @@ const profileSchema = new mongoose.Schema({
     atWork: { type: Boolean, default: false },
     play3DoorsLastUsed: { type: Number, default: 0 },
     playCount3Doors: { type: Number, default: 0 },
-    lottoTickets: { type: [Number], default: [] },
+    lottoGames: { type: [{ gameId: Number, numbers: [Number] }], default: [] }, // Füge das lottoGames-Feld hinzu
 });
 
 const model = mongoose.model("g4m3-economy", profileSchema);

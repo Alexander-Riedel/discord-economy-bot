@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const profileModel = require("../models/profileSchema");
-const { maxPlaysPerDay } = require("../globalValues.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -86,13 +85,17 @@ module.exports = {
             if (selectedNumbers.length < 5) {
                 await interaction.followUp({ content: 'Du hast nicht alle 5 Zahlen ausgewählt.', ephemeral: true });
             } else {
-                // Speichere die ausgewählten Lottozahlen in der Datenbank
+                // Bestimme die nächste Spiel-ID
+                const existingGames = profileData.lottoGames || [];
+                const gameId = existingGames.length > 0 ? existingGames.length + 1 : 1;
+
+                // Speichere die Lottozahlen in der Datenbank als JSON-Array
                 await profileModel.findOneAndUpdate(
                     { userId: id },
-                    { $push: { lottoTickets: selectedNumbers } } // Füge die Lottozahlen zum Array 'lottoTickets' hinzu
+                    { $push: { lottoGames: { gameId, numbers: selectedNumbers } } } // Speichere das Spiel
                 );
 
-                await interaction.followUp({ content: `Deine gewählten Lottozahlen sind: ${selectedNumbers.join(', ')}` });
+                await interaction.followUp({ content: `Deine gewählten Lottozahlen für Spiel ${gameId} sind: ${selectedNumbers.join(', ')}` });
             }
         });
     },
