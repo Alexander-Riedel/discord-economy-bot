@@ -7,23 +7,18 @@ module.exports = {
         .setDescription('Wähle deine Lottozahlen (5 aus 25)'),
     async execute(interaction, profileData) {
         const { id } = interaction.user;
-        const setAmount = 5; // Kosten für einen Lottoschein
+        const setAmount = 5;
         const { coins } = profileData;
 
         // Überprüfe, ob der Benutzer genügend Coins hat
         if (coins < setAmount) {
             return await interaction.reply({
-                content: `Du hast nicht genügend Coins. Ein Lottoschein kostet **5 Coins**, aber du hast nur **${coins.toLocaleString('de-DE')} Coins**.`,
+                content: `Du hast nicht genügend Coins. Ein Lottoschein kostet **5 Coins**, aber du hast nur **${coins} Coins**.`,
                 ephemeral: true,
             });
         }
 
-        // Ziehe 5 Coins vom Benutzer ab
-        await profileModel.findOneAndUpdate(
-            { userId: id },
-            { $inc: { coins: -setAmount } }
-        );
-
+        // Erstelle die anfänglichen Buttons
         const rows = [];
         let row = new ActionRowBuilder();
 
@@ -48,7 +43,6 @@ module.exports = {
         // Sende die Nachricht mit den Buttons
         await interaction.reply({ content: 'Wähle deine 5 Lottozahlen:', components: rows });
 
-        // Event-Handler, der auf Button-Interaktionen reagiert
         const filter = (i) => i.customId.startsWith('lotto_') && i.user.id === interaction.user.id;
         const collector = interaction.channel.createMessageComponentCollector({ filter, max: 5, time: 30000 });
 
@@ -59,14 +53,16 @@ module.exports = {
             if (!selectedNumbers.includes(num)) {
                 selectedNumbers.push(num);
 
-                // Buttons aktualisieren: Deaktiviere den gewählten Button
+                // Buttons aktualisieren: Deaktiviere die gewählten Buttons
                 const updatedRows = i.message.components.map(actionRow => {
                     return new ActionRowBuilder({
                         components: actionRow.components.map(button => {
-                            const newButton = ButtonBuilder.from(button);
-                            if (newButton.customId === i.customId) {
-                                newButton.setDisabled(true).setStyle(ButtonStyle.Secondary); // Deaktiviere den Button
-                            }
+                            const newButton = new ButtonBuilder()
+                                .setCustomId(button.customId) // Nutze die richtige ID
+                                .setLabel(button.label)
+                                .setStyle(button.style)
+                                .setDisabled(selectedNumbers.includes(parseInt(button.customId.split('_')[1]))); // Deaktiviere alle gewählten Zahlen
+
                             return newButton;
                         })
                     });
@@ -89,13 +85,16 @@ module.exports = {
                 const existingGames = profileData.lottoGames || [];
                 const gameId = existingGames.length > 0 ? existingGames.length + 1 : 1;
 
-                // Speichere die Lottozahlen in der Datenbank als JSON-Array
+                // Sortiere die ausgewählten Zahlen
+                selectedNumbers.sort((a, b) => a - b); // Sortiert das Array in aufsteigender Reihenfolge
+
+                // Ziehe 5 Coins vom Benutzer ab, nachdem die Zahlen gespeichert wurden
                 await profileModel.findOneAndUpdate(
                     { userId: id },
-                    { $push: { lottoGames: { gameId, numbers: selectedNumbers } } } // Speichere das Spiel
+                    { $inc: { coins: -setAmount }, $push: { lottoGames: { gameId, numbers: selectedNumbers } } }
                 );
 
-                await interaction.followUp({ content: `Deine gewählten Lottozahlen für Spiel ${gameId} sind: ${selectedNumbers.join(', ')}` });
+                await interaction.followUp({ content: `Deine gewählten Lottozahlen für Schein ${gameId} sind: ${selectedNumbers.join(', ')}` });
             }
         });
     },

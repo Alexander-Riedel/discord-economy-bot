@@ -11,7 +11,7 @@ module.exports = {
         await interaction.deferReply();
 
         const { globalName, id } = interaction.user;
-        console.log(interaction.user);
+        /*console.log(interaction.user);*/
         const { coins } = profileData;
 
         let leaderboardEmbed = new EmbedBuilder()
